@@ -1,7 +1,7 @@
 /*
  * Sample driver for erase/program/read of QSPI flash while executing an XIP
  * kernel out of the QSPI flash.
- * While communcating with the SPI flash, system will be off and the QSPI
+ * While communicating with the SPI flash, system will be off and the QSPI
  * peripheral will be in SPI mode meaning no kernel functions can be called.
  */
 
@@ -340,7 +340,7 @@ static int qspi_flash_recv_data(struct qspi_flash *qf,
 			case 0x35: /* Read configuration register */
 			case 0x16: /* Read Bank register (CMD_BANKADDR_BRRD) */
 			case 0xC8: /* Read Bank register (CMD_EXTNADDR_RDEAR) */
-			case 0xB5: /* Read NONVolatile Configuration register (Micron) */
+			case 0xB5: /* Read NON-Volatile Configuration register (Micron) */
 			case 0x85: /* Read Volatile Configuration register (Micron) */
 				combine = 1;
 				len *= 2;	// get twice as much data.
@@ -349,12 +349,12 @@ static int qspi_flash_recv_data(struct qspi_flash *qf,
 	}
 
 	/* Flash devices with this command wait for bit 7 to go high (not LOW) when
-	   erase or writting is done, so we need to AND the results, not OR them,
+	   erase or writing is done, so we need to AND the results, not OR them,
 	   when running in dual SPI flash mode */
 	if( qf->this_cmd == 0x70 )
 		qf->combine_status_mode = 1; /* AND results (WIP = 1 when ready) */
 	else
-		qf->combine_status_mode = 0; /* OR resutls (WIP = 0 when ready) */
+		qf->combine_status_mode = 0; /* OR results (WIP = 0 when ready) */
 
 	/* Reset after each command */
 	qf->disable_combine = 0;
@@ -408,11 +408,11 @@ static int qspi_flash_recv_data(struct qspi_flash *qf,
 
 		/* wait spi transfered */
 		if ((ret = qspi_flash_wait_for_tend(qf)) < 0) {
-			/* data recive timeout */
+			/* data receive timeout */
 			return ret;
 		}
 
-		/* Just read both regsiters. We'll figure out what parts
+		/* Just read both registers. We'll figure out what parts
 		   are valid later */
 		smrdr0 = qspi_read32(qf, QSPI_SMRDR0);
 		smrdr1 = qspi_read32(qf, QSPI_SMRDR1);
@@ -420,7 +420,7 @@ static int qspi_flash_recv_data(struct qspi_flash *qf,
 		if( !combine ) {
 			if (unit == 8) {
 				/* Dual Memory */
-				/* SMDR1 has the begining of the RX data (but
+				/* SMDR1 has the beginning of the RX data (but
 				   only when 8 bytes are being read) */
 				*buf++ = (u8)(smrdr1 & 0xff);
 				*buf++ = (u8)((smrdr1 >> 8) & 0xff);
@@ -444,7 +444,7 @@ static int qspi_flash_recv_data(struct qspi_flash *qf,
 			   checked for erase/write operations */
 			/* Combine results together */
 			if ( unit == 8 ) {
-				/* SMRDR1 always has the begining of the RX data stream */
+				/* SMRDR1 always has the beginning of the RX data stream */
 				if( qf->combine_status_mode) { /* AND results together */
 					*buf++ = (u8)(smrdr1 & 0xff) & (u8)((smrdr1 >> 8) & 0xff);
 					*buf++ = (u8)((smrdr1 >> 16) & 0xff) & (u8)((smrdr1 >> 24) & 0xff);
@@ -550,8 +550,8 @@ static int qspi_flash_wait_ready(struct qspi_flash *qf)
 
 	/* Check the status register for an Erase or Program Error */
 #ifdef S25FL512S_512_256K
-	/* Bit 6 is P_ERR for Programming error occured
-	 * Bit 5 is E_ERR for Erase error has occured */
+	/* Bit 6 is P_ERR for Programming error occurred
+	 * Bit 5 is E_ERR for Erase error has occurred */
 	if( (status[0] & 0x60) || (status[1] & 0x60) )
 	{
 		qf->op_err = 1;
@@ -573,7 +573,7 @@ static int qspi_flash_set_config(struct qspi_flash *qf)
 	u32 value;
 
 	/* NOTES: Set swap (SFDE) so the order of bytes D0 to D7 in the SPI RX/TX FIFO are always in the
-	   same order (LSB=D0, MSB=D7) regardless if the SPI did a byte,word, dwrod fetch */
+	   same order (LSB=D0, MSB=D7) regardless if the SPI did a byte, word, dwrod fetch */
 	value = 
 		CMNCR_MD|	       		/* spi mode */
 		CMNCR_SFDE|			/* swap */
@@ -682,7 +682,7 @@ static int qspi_flash_mode_xip(struct qspi_flash *qf)
 	local_irq_restore(qf->flags);
 
 	/*=========================================================*/
-	/* NOW IN XIP MODE. ALL KERNEL FUNCTIONS ARE NOW AVAILIBLE */
+	/* NOW IN XIP MODE. ALL KERNEL FUNCTIONS ARE NOW AVAILABLE */
 	/*=========================================================*/
 
 	return 0;
@@ -870,7 +870,7 @@ static int qspi_flash_release(struct inode * inode, struct file * filp)
 buf: The buffer to fill with you data
 length: The size of the buffer that you need to fill
 
-ppos: a pointer to the 'position' index that the file structre is using to konw
+ppos: a pointer to the 'position' index that the file structure is using to know
 	where in the file you are. You need to update this to show that you are
 	moving your way through the file.
 
@@ -986,7 +986,7 @@ static ssize_t qspi_flash_write(struct file * file, const char __user * buf,  si
 
 	DPRINTK("(BEFORE) op=%d,addr=0x%X,dual=%d,prog_buffer_cnt=%d,op_err=%d\n",my_qf.op,my_qf.op_addr,my_qf.dual,prog_buffer_cnt,my_qf.op_err);
 
-	/* Operation already errored out. Need to READ to reset */
+	/* Operation already had an error. Need to READ to reset */
 	if ( my_qf.op_err ) {
 		//*ppos += count;
 		//return count;
@@ -1123,7 +1123,7 @@ static struct device_attribute qspi_flash_device_attributes[] = {
    A 'device' is registered in the system after a platform_device_register()
    in your board-xxxx.c is called.
    If this is a simple driver that will only ever control 1 device,
-	   you can do the device regis139tration in the init routine and avoid having
+	   you can do the device registration in the init routine and avoid having
    to edit your board-xxx.c file.
 
   For more info, read:
@@ -1237,4 +1237,3 @@ MODULE_LICENSE("GPL v2");
 MODULE_AUTHOR("Chris Brandt");
 MODULE_ALIAS("platform:qspi_flash");
 MODULE_DESCRIPTION("qspi_flash: Program QSPI in XIP mode");
-
