@@ -104,6 +104,22 @@ clean:
 	@$(MAKE) -C $(KDIR) M=$(DRVDIR) $@
 	@-rm -f qspi_flash.ko qspi_app
 
+install:
+	@# Copy to Buildroot overlay directory (only for Renesas BSP)
+	@cp $(app) $(BUILDROOT_DIR)/output/rootfs_overlay/root/bin
+	@mkdir -p  $(BUILDROOT_DIR)/output/rootfs_overlay/root/module
+	@cp -a qspi_flash.ko $(BUILDROOT_DIR)/output/rootfs_overlay/root/module
+	@cp -a scripts/* $(BUILDROOT_DIR)/output/rootfs_overlay/root/scripts
+	@echo ''
+	@echo 'Please run Buildroot again to repackage the rootfs image.'
+	@echo 'For example:'
+	@echo ''
+	@echo '   cd $$ROOTDIR ; ./build.sh buildroot ; ./build.sh axfs ; cd -'
+	@echo ''
+	@echo 'After you boot, you can run the scripts qspi_save.sh'
+	@echo 'and qspi_restore.sh.'
+	@echo ''
+
 # Send the module to the targe board over serial console using ZMODEM
 # Enter "rz -y" on the target board (from a R/W directory sush as /tmp), then
 # run 'make send' to start the transfer.
