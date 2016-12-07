@@ -17,6 +17,7 @@
 #include <linux/ctype.h> 
 #include <asm/uaccess.h>
 #include <asm/io.h>
+#include <asm/cacheflush.h>	/* for cache flush */
 #include <linux/miscdevice.h>	/* Misc Driver */
 #include "qspi_flash.h"
 
@@ -33,7 +34,7 @@
 #endif
 
 
-#define DRIVER_VERSION	"2016-07-05"
+#define DRIVER_VERSION	"2016-12-07"
 #define DRIVER_NAME	"qspi_flash"
 
 #ifdef DEBUG
@@ -615,6 +616,9 @@ static int qspi_flash_mode_spi(struct qspi_flash *qf)
 
 	/* Turn off all system interrupts */
 	local_irq_save(qf->flags);
+
+	/* Flush all the cache (makes things much more stable) */
+	flush_cache_all();
 
 	qf->drcr_save = qspi_read32(qf, QSPI_DRCR);
 
