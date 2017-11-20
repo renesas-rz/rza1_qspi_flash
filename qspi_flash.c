@@ -33,9 +33,8 @@
 #endif
 
 #if 0
-  /* Macronix MX25L51235F */
-  #define MX25L51235F
-  #define MX25L51245F
+  /* Macronix MX25L51245G */
+  #define MX25L51245G
   #define FLASH_PAGE_SIZE 256
   #define FLASH_ERASE_SIZE (64*1024)
 #endif
@@ -520,7 +519,7 @@ static int qspi_flash_send_cmd(struct qspi_flash *qf,
 
 static int qspi_flash_wait_ready(struct qspi_flash *qf)
 {
-#if defined(S25FL512S_512_256K) || defined(MX25L51245F)
+#if defined(S25FL512S_512_256K) || defined(MX25L51245G)
 	/* Spansion, Macronix */
 	u8 cmd = 0x05;	/* Read Status Register-1 */
 #endif
@@ -540,7 +539,7 @@ static int qspi_flash_wait_ready(struct qspi_flash *qf)
 		/* Display results (for debug only) */
 		//debugout_PRINT_HEX(status[0]); debugout(','); debugout_PRINT_HEX(status[1]); debugout_NEWLINE();
 
-#if defined(S25FL512S_512_256K) || defined(MX25L51245F)
+#if defined(S25FL512S_512_256K) || defined(MX25L51245G)
 		/* Spansion: Work in progress is bit 0. Both need to be 0 */
 		if( !(status[0] & 1) && !(status[1] & 1) )
 			break; /* WIP == 0 */
@@ -568,7 +567,7 @@ static int qspi_flash_wait_ready(struct qspi_flash *qf)
 		cmd = 0x30;
 		qspi_flash_send_cmd(qf, &cmd, 1, CS_BACK_HIGH);
 	}
-#elif defined(MX25L51245F)
+#elif defined(MX25L51245G)
 	/* The programming and erase errors are located in Security Register */
         cmd = 0x2B;
 	qspi_flash_send_cmd(qf, &cmd, 1, CS_KEEP_LOW);
@@ -715,7 +714,7 @@ static int qspi_flash_mode_xip(struct qspi_flash *qf)
 
 static int qspi_flash_do_read(struct qspi_flash *qf, u8 *buf, int len)
 {
-#if defined(S25FL512S_512_256K) || defined(MX25L51245F)
+#if defined(S25FL512S_512_256K) || defined(MX25L51245G)
 	/* Spansion: Read Fast (4-byte Address) - (Requires dummy cycles) */
 	/* Macronix: FAST READ4B (4-byte Address) - (Requires dummy cycles) */
 	u8 cmd[6] = {0x0C};
@@ -728,7 +727,7 @@ static int qspi_flash_do_read(struct qspi_flash *qf, u8 *buf, int len)
 	cmd[3] = (qf->op_addr >> 8)  & 0xFF;
 	cmd[4] = (qf->op_addr)       & 0xFF;
 
-#if defined(S25FL512S_512_256K) || defined(MX25L51245F)
+#if defined(S25FL512S_512_256K) || defined(MX25L51245G)
 	/* Insert dummy cycles into read command */
 	cmd[5] = 0xFF;	/* 8 dummy cycles (1 bytes) */
 #endif
@@ -756,7 +755,7 @@ static int qspi_flash_do_read(struct qspi_flash *qf, u8 *buf, int len)
 }
 static int qspi_flash_do_erase(struct qspi_flash *qf)
 {
-#if defined(S25FL512S_512_256K) || defined(MX25L51245F)
+#if defined(S25FL512S_512_256K) || defined(MX25L51245G)
 	/* Spansion, Macronix */
 	u8 cmd[5] = {0xDC}; /* Erase 256 kB (4-byte Address) */
 	u8 cmd_wren = 0x06;	/* Write Enable command */
@@ -791,7 +790,7 @@ static int qspi_flash_do_erase(struct qspi_flash *qf)
 }
 static int qspi_flash_do_program(struct qspi_flash *qf, u8 *buf, int len)
 {
-#if defined(S25FL512S_512_256K) || defined(MX25L51245F)
+#if defined(S25FL512S_512_256K) || defined(MX25L51245G)
 	/* Spansion, Macronix */
 	u8 cmd[5] = {0x12}; /* Page Program (4-byte Address) */
 	u8 cmd_wren = 0x06;	/* Write Enable */
@@ -1223,17 +1222,17 @@ static int __init qspi_flash_init(void)
 	}
 	else
 		printk("%s: Warning - SPI Device is not a Spansion S25FL512S\n", DRIVER_NAME);
-#elif defined(MX25L51245F)
-	/* Macronix MX25L51235F*/
+#elif defined(MX25L51245G)
+	/* Macronix MX25L51245G */
 	DPRINTK("Flash ID = %02X %02X %02X %02X %02X\n",id[0],id[1],id[2],id[3],id[4]);
 
 	if( (id[0] == 0xC2) && /* Macronix */
 	    (id[1] == 0x20) && (id[2] == 0x1A) )
 	{
-		printk("%s: Detected Macronix MX25L51235F (256/64kB)\n", DRIVER_NAME);
+		printk("%s: Detected Macronix MX25L51245G (256/64kB)\n", DRIVER_NAME);
 	}
 	else
-		printk("%s: Warning - SPI Device is not Macronix MX25L51245F\n", DRIVER_NAME);
+		printk("%s: Warning - SPI Device is not Macronix MX25L51245G\n", DRIVER_NAME);
 #endif
 
 	printk("%s: version %s\n", DRIVER_NAME, DRIVER_VERSION);
