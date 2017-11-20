@@ -535,7 +535,7 @@ static int qspi_flash_wait_ready(struct qspi_flash *qf)
 
 #ifdef S25FL512S_512_256K
 		/* Spansion: Work in progress is bit 0. Both need to be 0 */
-		if( !(status[0] & 1) && !(status[0] & 1) )
+		if( !(status[0] & 1) && !(status[1] & 1) )
 			break; /* WIP == 0 */
 #endif
 
