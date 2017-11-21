@@ -33,7 +33,13 @@ else
 endif
 
 # Kernel Source Directory
+ifeq ("$(shell test -e $(OUTDIR)/linux-3.14 && echo test)","test")
 KDIR		:= $(OUTDIR)/linux-3.14
+endif
+
+ifeq ("$(shell test -e $(OUTDIR)/linux-4.9 && echo test)","test")
+KDIR		:= $(OUTDIR)/linux-4.9
+endif
 
 # Cross Compiler Prefix and ARCH
 #CROSS_COMPILE	:= arm-linux-gnueabihf-

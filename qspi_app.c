@@ -3,6 +3,7 @@
 #include <fcntl.h>
 #include <stdint.h>
 #include <string.h>
+#include <unistd.h>
 
 #define INDEX_CMD	1
 #define INDEX_SPICNT	2

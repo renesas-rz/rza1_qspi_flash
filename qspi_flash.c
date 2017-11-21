@@ -1137,7 +1137,7 @@ static ssize_t qspi_flash_store_dual(struct device *dev,
 }
 
 static struct device_attribute qspi_flash_device_attributes[] = {
-	__ATTR(	dual,0666,qspi_flash_show_dual,qspi_flash_store_dual),
+	__ATTR(	dual,0660,qspi_flash_show_dual,qspi_flash_store_dual),
 };
 
 /* This 'init' function of the driver will run when the system is booting.
